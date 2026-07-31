@@ -1,6 +1,5 @@
 import streamlit as st
-import py3Dmol
-from stmol import showmol
+import streamlit.components.v1 as components
 import time
 
 st.set_page_config(page_title="3D Bio-Visualizer", page_icon="🧬", layout="wide")
@@ -14,8 +13,8 @@ dna_seq = st.sidebar.text_area("Enter DNA Sequence:", "ATGCGATATGACTGATCATAG").u
 dna_seq = "".join(dna_seq.split())
 
 st.sidebar.header("2. 3D Structure Viewer")
-pdb_code = st.sidebar.text_input("Enter PDB ID for 3D Animation:", "1BNA")
-st.sidebar.caption("Try examples: **1BNA** (DNA Double Helix), **1CAG** (Collagen), **4INS** (Insulin)")
+pdb_code = st.sidebar.text_input("Enter PDB ID for 3D Animation:", "1BNA").strip().lower()
+st.sidebar.caption("Try examples: **1bna** (DNA Double Helix), **1cag** (Collagen), **4ins** (Insulin)")
 
 # --- TAB SETUP ---
 tab1, tab2, tab3 = st.tabs(["📊 Sequence Converter", "🧊 3D Molecular Animation", "📖 Biotech Terms Simplified"])
@@ -70,30 +69,27 @@ with tab1:
             counts = {n: dna_seq.count(n) for n in "ATGC"}
             st.bar_chart(counts)
 
-# TAB 2: 3D ANIMATION
+# TAB 2: 3D ANIMATION (Pure HTML/JS Embed - Error Free)
 with tab2:
     st.subheader("🧊 Interactive 3D Molecular Structure View")
     st.info("You can spin, drag, and zoom in/out of the 3D model below using your touch screen or mouse!")
     
-    style_choice = st.selectbox("Select Rendering Style:", ["cartoon", "stick", "sphere", "line"])
-    
     if pdb_code:
-        try:
-            view = py3Dmol.view(query=f'pdb:{pdb_code.lower()}')
-            if style_choice == "cartoon":
-                view.setStyle({'cartoon': {'color': 'spectrum'}})
-            elif style_choice == "stick":
-                view.setStyle({'stick': {}})
-            elif style_choice == "sphere":
-                view.setStyle({'sphere': {}})
-            else:
-                view.setStyle({'line': {}})
-            
-            view.addSurface(py3Dmol.VDW, {'opacity': 0.3, 'color': 'white'})
-            view.zoomTo()
-            showmol(view, height=450, width=700)
-        except Exception as e:
-            st.error(f"Could not load 3D structure for PDB ID: {pdb_code}. Please check the ID.")
+        html_code = f"""
+        <script src="https://3Dmol.org/build/3Dmol-min.js"></script>
+        <div id="container" style="width: 100%; height: 500px; position: relative; border: 1px solid #ccc; border-radius: 8px;"></div>
+        <script>
+            let element = document.getElementById('container');
+            let config = {{ backgroundColor: 'white' }};
+            let viewer = $3Dmol.createViewer( element, config );
+            $3Dmol.download("pdb:{pdb_code}", viewer, {{}}, function() {{
+                viewer.setStyle({{}}, {{cartoon: {{color: 'spectrum'}}}});
+                viewer.zoomTo();
+                viewer.render();
+            }});
+        </script>
+        """
+        components.html(html_code, height=520)
 
 # TAB 3: BIOTECH TERMS
 with tab3:
@@ -105,4 +101,4 @@ with tab3:
     with st.expander("🍔 Protein & Amino Acids"):
         st.write("শরীরের পেশি, এনজাইম এবং অন্যান্য অঙ্গ তৈরীর মূল কারিগর।")
     with st.expander("🧊 PDB (Protein Data Bank) ID"):
-        st.write("বিশ্বব্যাপী বায়োইনফর্মেটিক্স গবেষণাগারে আবিষ্কৃত ৩D মলিকিউলের অনন্য কোড (যেমন DNA 3D Structure = 1BNA)।")
+        st.write("বিশ্বব্যাপী বায়োইনফর্মেটিক্স গবেষণাগারে আবিষ্কৃত ৩D মলিকিউলের অনন্য কোড (যেমন DNA 3D Structure = 1bna)।")
