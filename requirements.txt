@@ -1,5 +1,2 @@
 streamlit
-py3Dmol
-stmol
-biopython
-ipywidgets
+plotly
