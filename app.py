@@ -1,104 +1,143 @@
 import streamlit as st
 import streamlit.components.v1 as components
+import plotly.express as px
 import time
 
-st.set_page_config(page_title="3D Bio-Visualizer", page_icon="🧬", layout="wide")
+# --- PAGE CONFIG ---
+st.set_page_config(
+    page_title="BioLab Hub | Biotech & Drug Research Suite",
+    page_icon="🧪",
+    layout="wide"
+)
 
-st.title("🧬 Advanced 3D DNA, RNA & Protein Interactive Visualizer")
-st.write("Analyze biological sequences and interact with real 3D Protein & DNA structures!")
+# --- CUSTOM CSS ---
+st.markdown("""
+<style>
+    .main { background-color: #0d1117; color: #c9d1d9; }
+    .stButton>button {
+        background: linear-gradient(135deg, #2ea043, #238636);
+        color: white; border: None; border-radius: 8px;
+        padding: 0.6rem 1.2rem; font-weight: bold; width: 100%;
+    }
+    .stButton>button:hover {
+        background: linear-gradient(135deg, #3fb950, #2ea043);
+        box-shadow: 0 4px 12px rgba(46, 160, 67, 0.4);
+    }
+</style>
+""", unsafe_allow_html=True)
 
-# --- SIDEBAR ---
-st.sidebar.header("1. Sequence Analysis")
-dna_seq = st.sidebar.text_area("Enter DNA Sequence:", "ATGCGATATGACTGATCATAG").upper()
-dna_seq = "".join(dna_seq.split())
+# --- HEADER ---
+st.title("🧪 BioLab All-in-One Research Hub")
+st.caption("Genomics, Molecular Drug Design, Sequence Alignment & Lab Calculators")
+st.markdown("---")
 
-st.sidebar.header("2. 3D Structure Viewer")
-pdb_code = st.sidebar.text_input("Enter PDB ID for 3D Animation:", "1BNA").strip().lower()
-st.sidebar.caption("Try examples: **1bna** (DNA Double Helix), **1cag** (Collagen), **4ins** (Insulin)")
+# --- NAVIGATION TABS ---
+tab1, tab2, tab3, tab4, tab5 = st.tabs([
+    "🧬 Genomics & Protein", 
+    "💊 3D Drug & Chemical Viewer", 
+    "🔗 Gene Similarity Matcher", 
+    "🧪 Biotech Lab Calculators", 
+    "📖 Science Wiki"
+])
 
-# --- TAB SETUP ---
-tab1, tab2, tab3 = st.tabs(["📊 Sequence Converter", "🧊 3D Molecular Animation", "📖 Biotech Terms Simplified"])
-
-# TAB 1: CONVERTER
+# --- TAB 1: GENOMICS ---
 with tab1:
-    if st.button("Run Sequence Analysis"):
-        invalid = [c for c in dna_seq if c not in "ATGC"]
-        if invalid:
-            st.error("Invalid DNA sequence! Only A, T, C, G allowed.")
-        elif not dna_seq:
-            st.warning("Please enter sequence.")
-        else:
-            with st.spinner("Analyzing..."):
-                time.sleep(0.5)
-            
-            rna_seq = dna_seq.replace('T', 'U')
-            
-            codon_table = {
-                'ATA':'I', 'ATC':'I', 'ATT':'I', 'ATG':'M',
-                'ACA':'T', 'ACC':'T', 'ACG':'T', 'ACT':'T',
-                'AAC':'N', 'AAT':'N', 'AAA':'K', 'AAG':'K',
-                'AGC':'S', 'AGT':'S', 'AGA':'R', 'AGG':'R',
-                'CTA':'L', 'CTC':'L', 'CTG':'L', 'CTT':'L',
-                'CCA':'P', 'CCC':'P', 'CCG':'P', 'CCT':'P',
-                'CAC':'H', 'CAT':'H', 'CAA':'Q', 'CAG':'Q',
-                'CGA':'R', 'CGC':'R', 'CGG':'R', 'CGT':'R',
-                'GTA':'V', 'GTC':'V', 'GTG':'V', 'GTT':'V',
-                'GCA':'A', 'GCC':'A', 'GCG':'A', 'GCT':'A',
-                'GAC':'D', 'GAT':'D', 'GAA':'E', 'GAG':'E',
-                'GGA':'G', 'GGC':'G', 'GGG':'G', 'GGT':'G',
-                'TCA':'S', 'TCC':'S', 'TCG':'S', 'TCT':'S',
-                'TTC':'F', 'TTT':'F', 'TTA':'L', 'TTG':'L',
-                'TAC':'Y', 'TAT':'Y', 'TAA':'_', 'TAG':'_',
-                'TGC':'C', 'TGT':'C', 'TGA':'_', 'TGG':'W',
-            }
-
-            protein_seq = ""
-            for i in range(0, len(dna_seq), 3):
-                codon = dna_seq[i:i+3]
-                if len(codon) == 3:
-                    aa = codon_table.get(codon, 'X')
-                    if aa == '_': break
-                    protein_seq += aa
-
-            st.success("Analysis Complete!")
-            st.subheader("Results:")
-            st.code(f"DNA:     {dna_seq}")
-            st.code(f"RNA:     {rna_seq}")
-            st.code(f"Protein: {protein_seq}")
-            
-            counts = {n: dna_seq.count(n) for n in "ATGC"}
-            st.bar_chart(counts)
-
-# TAB 2: 3D ANIMATION (Pure HTML/JS Embed - Error Free)
-with tab2:
-    st.subheader("🧊 Interactive 3D Molecular Structure View")
-    st.info("You can spin, drag, and zoom in/out of the 3D model below using your touch screen or mouse!")
+    st.subheader("🧬 DNA to Protein Sequence Analyzer")
+    dna_input = st.text_area("Enter DNA Sequence:", "ATGCGATATGACTGATCATAGATGC").upper().replace(" ", "")
     
-    if pdb_code:
+    if st.button("🚀 Analyze Genome"):
+        if any(c not in "ATGC" for c in dna_input):
+            st.error("Invalid DNA! Only A, T, C, G bases allowed.")
+        elif dna_input:
+            rna = dna_input.replace('T', 'U')
+            gc = round(((dna_input.count('G') + dna_input.count('C')) / len(dna_input)) * 100, 2)
+            
+            c1, c2, c3 = st.columns(3)
+            c1.metric("Sequence Length", f"{len(dna_input)} bp")
+            c2.metric("GC Content Ratio", f"{gc}%")
+            c3.metric("RNA Transcribed", f"{len(rna)} bases")
+            
+            st.code(f"RNA: {rna}")
+            
+            # Nucleotide Chart
+            counts = {b: dna_input.count(b) for b in "ATGC"}
+            fig = px.pie(values=list(counts.values()), names=list(counts.keys()), hole=0.4, title="Base Distribution")
+            st.plotly_chart(fig, use_container_width=True)
+
+# --- TAB 2: 3D DRUG & MOLECULE VIEWER ---
+with tab2:
+    st.subheader("💊 Interactive 3D Drug & Molecule Explorer")
+    st.caption("Inspect 3D structures of medicines, viruses, and DNA.")
+    
+    col_a, col_b = st.columns([1, 3])
+    with col_a:
+        mol_type = st.radio("Choose Input Type:", ["Preset Drugs", "Custom PDB ID"])
+        if mol_type == "Preset Drugs":
+            drug = st.selectbox("Select Compound:", ["Paracetamol (1C8U)", "Insulin (4INS)", "DNA Helix (1BNA)", "Hemoglobin (1A3N)"])
+            pdb_id = drug.split("(")[-1].replace(")", "").lower()
+        else:
+            pdb_id = st.text_input("Enter 4-letter PDB Code:", "1bna").lower()
+            
+    with col_b:
         html_code = f"""
         <script src="https://3Dmol.org/build/3Dmol-min.js"></script>
-        <div id="container" style="width: 100%; height: 500px; position: relative; border: 1px solid #ccc; border-radius: 8px;"></div>
+        <div id="container" style="width: 100%; height: 450px; position: relative; border-radius: 10px; border: 1px solid #30363d;"></div>
         <script>
             let element = document.getElementById('container');
-            let config = {{ backgroundColor: 'white' }};
-            let viewer = $3Dmol.createViewer( element, config );
-            $3Dmol.download("pdb:{pdb_code}", viewer, {{}}, function() {{
-                viewer.setStyle({{}}, {{cartoon: {{color: 'spectrum'}}}});
+            let viewer = $3Dmol.createViewer( element, {{ backgroundColor: '#161b22' }} );
+            $3Dmol.download("pdb:{pdb_id}", viewer, {{}}, function() {{
+                viewer.setStyle({{}}, {{cartoon: {{color: 'spectrum'}}, stick: {{}}}});
                 viewer.zoomTo();
                 viewer.render();
             }});
         </script>
         """
-        components.html(html_code, height=520)
+        components.html(html_code, height=470)
 
-# TAB 3: BIOTECH TERMS
+# --- TAB 3: GENE ALIGNMENT ---
 with tab3:
-    st.header("🔬 Biotech & Bioinformatics Concepts")
-    with st.expander("🧬 DNA (Deoxyribonucleic Acid)"):
-        st.write("জীবদেহের মূল ব্লু-প্রিন্ট যা A, T, C, G নামক নিউক্লিওটাইড দিয়ে গঠিত।")
-    with st.expander("🧪 RNA (Ribonucleic Acid)"):
-        st.write("DNA থেকে সংকেত বহন করে প্রোটিন তৈরির মেসেঞ্জার হিসেবে কাজ করে।")
-    with st.expander("🍔 Protein & Amino Acids"):
-        st.write("শরীরের পেশি, এনজাইম এবং অন্যান্য অঙ্গ তৈরীর মূল কারিগর।")
-    with st.expander("🧊 PDB (Protein Data Bank) ID"):
-        st.write("বিশ্বব্যাপী বায়োইনফর্মেটিক্স গবেষণাগারে আবিষ্কৃত ৩D মলিকিউলের অনন্য কোড (যেমন DNA 3D Structure = 1bna)।")
+    st.subheader("🔗 DNA Sequence Similarity Matcher")
+    st.caption("Compare two gene sequences to calculate percentage similarity (e.g., Species Comparison).")
+    
+    seq1 = st.text_input("Sequence 1 (e.g. Human Gene):", "ATGCGATCGATCG").upper()
+    seq2 = st.text_input("Sequence 2 (e.g. Chimpanzee Gene):", "ATGCGATCCATCG").upper()
+    
+    if st.button("🔍 Compare Sequences"):
+        min_len = min(len(seq1), len(seq2))
+        matches = sum(1 for i in range(min_len) if seq1[i] == seq2[i])
+        similarity = round((matches / max(len(seq1), len(seq2))) * 100, 2) if seq1 else 0
+        
+        st.success(f"Genetic Match Similarity: **{similarity}%**")
+        st.progress(similarity / 100)
+
+# --- TAB 4: LAB CALCULATORS ---
+with tab4:
+    st.subheader("🧪 Virtual Biotech Lab Calculators")
+    
+    calc_type = st.selectbox("Select Calculator:", ["Solution Dilution (C1V1 = C2V2)", "Molarity Calculator"])
+    
+    if calc_type == "Solution Dilution (C1V1 = C2V2)":
+        st.markdown("#### Solution Dilution Calculator")
+        c1 = st.number_input("Initial Concentration (C1):", value=10.0)
+        v1 = st.number_input("Initial Volume Needed (V1):", value=0.0)
+        c2 = st.number_input("Target Concentration (C2):", value=2.0)
+        v2 = st.number_input("Target Total Volume (V2):", value=500.0)
+        
+        if v1 == 0 and c1 > 0:
+            req_v1 = (c2 * v2) / c1
+            st.info(f"💡 You need **{req_v1:.2f} mL** of Stock Solution (V1).")
+            
+    elif calc_type == "Molarity Calculator":
+        st.markdown("#### Molarity Calculator (M = mol / L)")
+        moles = st.number_input("Solute Amount (Moles):", value=0.5)
+        liters = st.number_input("Volume (Liters):", value=1.0)
+        if liters > 0:
+            molarity = moles / liters
+            st.info(f"💡 Molarity = **{molarity:.3f} M (Mol/L)**")
+
+# --- TAB 5: WIKI ---
+with tab5:
+    st.subheader("📖 Quick Biotech Reference")
+    st.write("• **Genomics:** Study of entire genomes including sequence and mutation analysis.")
+    st.write("• **Drug Design:** Using 3D molecular structures to fit chemicals into human proteins.")
+    st.write("• **Sequence Alignment:** Finding evolutionary links between different organisms.")
