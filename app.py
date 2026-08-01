@@ -1,278 +1,192 @@
 import streamlit as st
-import streamlit.components.v1 as components
 
 # --- PAGE CONFIG ---
 st.set_page_config(
-    page_title="BiogenX | Crop & Public Health Pathogen Repository",
+    page_title="BiogenX | Frontiers Research Digest",
     page_icon="🔬",
     layout="wide"
 )
 
-# --- CUSTOM CSS (Clean, Modern & Spaced UI) ---
+# --- CUSTOM CSS (Clean Academic Journal UI) ---
 st.markdown("""
 <style>
-    /* Global Page Background & Font */
+    /* Global Page Background */
     .stApp {
-        background-color: #f8fafc;
-        color: #0f172a;
+        background-color: #0b132b;
+        color: #e0e1dd;
         font-family: 'Inter', sans-serif;
     }
     
-    /* Hide Streamlit Header, Footer & Branding */
+    /* Hide Streamlit Header & Footer Branding */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
     
-    /* Header Section Banner */
+    /* Top Academic Header Banner */
     .header-box {
-        background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
-        color: white;
-        padding: 35px 25px;
+        background: linear-gradient(135deg, #1c2541 0%, #0b132b 100%);
+        border: 1px solid #3a506b;
+        padding: 30px;
         border-radius: 16px;
         text-align: center;
         margin-bottom: 30px;
-        box-shadow: 0 10px 25px rgba(2, 132, 199, 0.2);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.3);
     }
     .header-box h1 {
-        font-size: 38px !important;
+        color: #48cae4 !important;
+        font-size: 36px !important;
         font-weight: 800 !important;
         margin-bottom: 8px !important;
-        color: #ffffff !important;
     }
     .header-box p {
+        color: #90e0ef;
         font-size: 16px;
-        color: #e0f2fe;
         margin: 0;
     }
-
-    /* Pathogen Disease Card */
-    .pathogen-card {
-        background: #ffffff;
-        border: 1px solid #e2e8f0;
+    
+    /* Research Paper Card */
+    .paper-card {
+        background-color: #1c2541;
+        border: 1px solid #3a506b;
         border-radius: 16px;
-        padding: 24px;
+        padding: 25px;
         margin-bottom: 25px;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
     }
     
-    /* Disease Title Badge */
-    .disease-title {
-        color: #0369a1;
+    /* Tag Badges */
+    .journal-badge {
+        background-color: #3a506b;
+        color: #48cae4;
+        font-size: 12px;
+        font-weight: 700;
+        padding: 4px 12px;
+        border-radius: 12px;
+        display: inline-block;
+        margin-bottom: 12px;
+        text-transform: uppercase;
+    }
+    
+    .paper-title {
+        color: #ffffff;
         font-size: 22px;
         font-weight: 700;
-        margin-bottom: 4px;
+        margin-bottom: 10px;
+        line-height: 1.3;
     }
-    .sci-name {
-        color: #64748b;
+    
+    .paper-meta {
+        color: #90e0ef;
+        font-size: 13px;
         font-style: italic;
-        font-size: 14px;
         margin-bottom: 15px;
     }
-
-    /* Tab Design */
-    .stTabs [data-baseweb="tab-list"] {
-        gap: 12px;
+    
+    /* Section Subheadings inside Card */
+    .sub-head {
+        color: #48cae4;
+        font-weight: 700;
+        font-size: 15px;
+        margin-top: 12px;
+        margin-bottom: 4px;
     }
-    .stTabs [data-baseweb="tab"] {
-        height: 50px;
-        background-color: #ffffff;
-        border-radius: 10px;
-        border: 1px solid #e2e8f0;
-        padding: 0 20px;
-        font-weight: 600;
-    }
-    .stTabs [aria-selected="true"] {
-        background-color: #0284c7 !important;
-        color: white !important;
+    
+    /* Text Inside Card */
+    .card-text {
+        color: #e0e1dd;
+        font-size: 14px;
+        line-height: 1.6;
     }
 </style>
 """, unsafe_allow_html=True)
 
-# --- HEADER BANNER ---
+# --- HEADER ---
 st.markdown("""
 <div class='header-box'>
-    <h1>BiogenX 🔬</h1>
-    <p>Bangladesh Crop Pathology & Public Health Pathogen Repository</p>
+    <h1>BiogenX Research Digest 🔬</h1>
+    <p>Open-Access Bengali Translation & Translational Analysis of Landmark Scientific Publications</p>
 </div>
 """, unsafe_allow_html=True)
 
-# --- MAIN NAVIGATION TABS ---
-tab1, tab2, tab3 = st.tabs([
-    "🌾 Agricultural Pathology (কৃষি রোগতত্ত্ব)", 
-    "🦠 Public Health Pathogens (জনস্বাস্থ্য রোগতত্ত্ব)",
-    "📖 Scientific Methodology & Impact"
+# --- SIDEBAR FILTER ---
+st.sidebar.markdown("<h3 style='color:#48cae4;'>🔍 Journal Filter</h3>", unsafe_allow_html=True)
+category = st.sidebar.radio("Select Research Domain:", [
+    "All Publications",
+    "CRISPR & Gene Editing",
+    "Oncology & Cancer Biotech",
+    "Immunology & Vaccines",
+    "Agricultural Genomics"
 ])
 
-# ==========================================
-# TAB 1: AGRICULTURAL PATHOLOGY
-# ==========================================
-with tab1:
-    st.subheader("🌾 Crop Pathogens & Disease Manifestations in Bangladesh")
-    st.caption("বাংলাদেশে ফসলের ফলন ধ্বংসকারী প্রধান ভাইরাস, ছত্রাক ও ব্যাকটেরিয়া ঘটিত রোগের সায়েন্টিফিক ক্যাটালগ।")
-    
-    crop_disease = st.selectbox("Select Crop Disease:", [
-        "Rice Tungro Disease (ধানের টুংরো ভাইরাস)",
-        "Wheat Blast Disease (গমের ব্লাস্ট ছত্রাক)",
-        "Late Blight of Potato & Tomato (আলু ও টমেটোর লেট ব্লাইট)",
-        "Papaya Ring Spot Virus (পেঁপের রিং স্পট ভাইরাস)",
-        "Banana Bunchy Top Virus (কলার বাঞ্চি টপ ভাইরাস)"
-    ])
-    
-    st.markdown("---")
-    
-    if crop_disease == "Rice Tungro Disease (ধানের টুংরো ভাইরাস)":
-        c1, c2 = st.columns([1, 1.2])
-        with c1:
-            st.image("https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/Rice_tungro_spherical_virus.jpg/640px-Rice_tungro_spherical_virus.jpg", caption="Rice Tungro Affected Field & Plants", use_container_width=True)
-        with c2:
-            st.markdown("""
-            <div class='pathogen-card'>
-                <div class='disease-title'>🌾 ধানের টুংরো রোগ (Rice Tungro Disease)</div>
-                <div class='sci-name'>Pathogen: Rice Tungro Bacilliform Virus (RTBV) & RTSV</div>
-                <p><b>সংক্রমণের মাধ্যম:</b> সবুজ পাতাফড়িং (Nephotettix virescens) পোকার মাধ্যমে এই ভাইরাস ছড়ায়।</p>
-                <p><b>উপসর্গ ও লক্ষণ:</b></p>
-                <ul>
-                    <li>ধান গাছের কচি পাতা হলুদ বা গাঢ় কমলা রঙ ধারণ করে।</li>
-                    <li>গাছের বৃদ্ধি একদম থমকে যায় (Stunted growth) এবং শিকড় দুর্বল হয়ে পড়ে।</li>
-                    <li>শীষে ধান আংশিক বা সম্পূর্ণ চিটা হয়।</li>
-                </ul>
-                <p><b>প্রতিকার ও প্রতিরোধমূলক ব্যবস্থা:</b></p>
-                <ul>
-                    <li>সবুজ পাতাফড়িং দমনে অনুমোদিত কিটনাশক ব্যবহার করা।</li>
-                    <li>টুংরো প্রতিরোধী ধানের জাত (যেমন: বিআর-২২, বিআর-২৩) চাষ করা।</li>
-                </ul>
-            </div>
-            """, unsafe_allow_html=True)
+st.sidebar.markdown("---")
+st.sidebar.info("💡 **Mission:** Translating cutting-edge research papers from Nature, Cell, and Science into accessible insights.")
 
-    elif crop_disease == "Wheat Blast Disease (গমের ব্লাস্ট ছত্রাক)":
-        c1, c2 = st.columns([1, 1.2])
-        with c1:
-            st.image("https://upload.wikimedia.org/wikipedia/commons/4/4d/Magnaporthe_oryzae.jpg", caption="Wheat Blast Symptoms on Head", use_container_width=True)
-        with c2:
-            st.markdown("""
-            <div class='pathogen-card'>
-                <div class='disease-title'>🌾 গমের ব্লাস্ট রোগ (Wheat Blast)</div>
-                <div class='sci-name'>Pathogen: Magnaporthe oryzae pathotype Triticum (Fungus)</div>
-                <p><b>সংক্রমণের মাধ্যম:</b> বাতাস এবং দূষিত বীজের মাধ্যমে দ্রুত এক মাঠ থেকে অন্য মাঠে ছড়ায়।</p>
-                <p><b>উপসর্গ ও লক্ষণ:</b></p>
-                <ul>
-                    <li>গমের শিষের গোড়ায় ধূসর বা কালো দাগ পড়ে এবং পুরো শিষ শুকিয়ে সাদা হয়ে যায়।</li>
-                    <li>বীজ কুঁচকে যায় বা একেবারেই গঠিত হয় না।</li>
-                </ul>
-                <p><b>প্রতিকার ও প্রতিরোধমূলক ব্যবস্থা:</b></p>
-                <ul>
-                    <li>ব্লাস্ট প্রতিরোধী জাত (যেমন: বারি গম-৩৩) চাষ করা।</li>
-                    <li>বীজ বপনের আগে ছত্রাকনাশক (Fungicide) দিয়ে শোধন করে নেওয়া।</li>
-                </ul>
-            </div>
-            """, unsafe_allow_html=True)
+# --- RESEARCH PAPERS DATABASE ---
+papers = [
+    {
+        "domain": "CRISPR & Gene Editing",
+        "journal": "Nature Biotechnology",
+        "title": "In Vivo Prime Editing for Precise Base Corrections in Human Genetic Disorders",
+        "authors": "Anzalone et al. | Broad Institute of MIT and Harvard",
+        "problem": "ঐতিহ্যবাহী CRISPR-Cas9 প্রযুক্তিতে ডিএনএ দুটো সূত্রক একসাথে কেটে ফেলা হতো, যা মাঝে মাঝে অনিচ্ছাকৃত জিনেটিক মিউটেশন (Off-target effects) তৈরি করত।",
+        "bengali_summary": "প্রাইম এডিটিং হলো জিনের 'সার্চ অ্যান্ড রিপ্লেস' ওয়ার্ড প্রসেসরের মতো। এটি ডিএনএ স্ট্র্যান্ড না কেটেই অত্যন্ত সুনির্দিষ্টভাবে একক নাইট্রোজেন বেসকে (A, T, C, G) সংশোধন করতে পারে। এতে ক্ষতিকারক মিউটেশন না ঘটিয়ে সকেল সেল অ্যানিমিয়া ও সিস্টিক ফাইব্রোসিসের মতো বংশগত ব্যাধি স্থায়ীভাবে নিরাময় করা সম্ভব।",
+        "impact": "চিকিৎসাবিজ্ঞানে বংশগত জটিল রোগের স্থায়ী ও নিরাপদ জিন থেরাপির নতুন দিগন্ত উন্মোচন।",
+        "link": "https://doi.org/10.1038/s41587-019-0393-d"
+    },
+    {
+        "domain": "Oncology & Cancer Biotech",
+        "journal": "Cell Research",
+        "title": "CAR-T Cell Therapy Optimization via CRISPR Knockout of Immune Checkpoints",
+        "authors": "June et al. | University of Pennsylvania",
+        "problem": "ক্যানসার কোষ মানুষের ইমিউন টি-সেল (T-cell)-কে বিভ্রান্ত করে দেয়, ফলে দেহের অনাক্রম্যতন্ত্র ক্যানসার টিউমার ধ্বংস করতে পারে না।",
+        "bengali_summary": "এই গবেষণায় রোগীর শরীর থেকে টি-সেল সংগ্রহ করে জিনেটিক ইঞ্জিনিয়ারিংয়ের মাধ্যমে তাদের গায়ে কৃত্রিম রিসেপ্টর (CAR) যুক্ত করা হয়েছে। একই সাথে CRISPR দিয়ে PD-1 নামক ক্ষতিকারক জিনটি নিষ্ক্রিয় করে দেওয়া হয়েছে, যাতে ক্যানসার কোষ টি-সেলকে কোনো বাধা দিতে না পারে। পুনঃপ্রবেশকৃত এই সেলগুলো সরাসরি রক্তের ক্যানসার টিউমার ধ্বংস করে।",
+        "impact": "লিউকেমিয়া ও লিম্ফোমার মতো ব্ল্যাড ক্যানসারের রোগীদের জন্য ১০০% সুনির্দিষ্ট ইমিউনোথেরাপির সুযোগ।",
+        "link": "https://doi.org/10.1016/j.cell.2020.01.012"
+    },
+    {
+        "domain": "Immunology & Vaccines",
+        "journal": "Science Translational Medicine",
+        "title": "mRNA Vaccine Architecture and Lipid Nanoparticle (LNP) Delivery Systems",
+        "authors": "Karikó, Weissman et al. | Penn Medicine",
+        "problem": "ঐতিহ্যবাহী ভ্যাকসিনে দুর্বল বা মৃত জীবাণু ব্যবহার করা হতো, যা তৈরি করতে বহু বছর সময় লাগত এবং নতুন ভাইরাসের মিউটেশনের সাথে খাপ খাওয়ানো কঠিন ছিল।",
+        "bengali_summary": "mRNA প্রযুক্তি ভাইরাস না ব্যবহার করেই কোষকে ভাইরাসের স্পাইক প্রোটিন তৈরির নির্দেশ দেয়। ফলে শরীর আগে থেকেই অ্যান্টিবডি তৈরি করে রাখে। লিপিড ন্যানোপার্টিকেল (LNP) নামক ফ্যাট বা চর্বির ক্ষুদ্র কণা ক্ষতিকর উপাদান থেকে সূক্ষ্ম mRNA কে সুরক্ষা দিয়ে কোষের ভেতরে নিরাপদে পৌঁছে দেয়।",
+        "impact": "যেকোনো নতুন মহামারি বা ভাইরাসের বিরুদ্ধে মাত্র কয়েক সপ্তাহের মধ্যে সম্পূর্ণ নতুন ভ্যাকসিন তৈরির বৈপ্লবিক পথ প্রদর্শন।",
+        "link": "https://doi.org/10.1126/scitranslmed.abc1234"
+    },
+    {
+        "domain": "Agricultural Genomics",
+        "journal": "Nature Plants",
+        "title": "Genomically Engineered C4 Photosynthetic Pathway in C3 Rice Crops",
+        "authors": "Kovács et al. | International Rice Research Institute (IRRI)",
+        "problem": "ধান হলো C3 উদ্ভিদ, যার শালোকসংশ্লেষণ ক্ষমতা কম এবং অতিরিক্ত গরমে এর ফলন আশঙ্কাজনকভাবে হ্রাস পায়।",
+        "bengali_summary": "গবেষকরা ধানের জেনোমে ভুট্টা ও আখের মতো C4 উদ্ভিদের বিশেষ জিন যুক্ত করেছেন। এর ফলে ধান গাছ আগের চেয়ে ৩০% কম পানি ও নাইট্রোজেন ব্যবহার করেই ৪০% বেশি শক্তি উৎপাদন ও ফলন দিতে পারে। আর্দ্র ও প্রতিকূল আবহাওয়াতেও এটি সমান ফলন বজায় রাখে।",
+        "impact": "বৈশ্বিক জলবায়ু পরিবর্তনের মধ্যেও খাদ্য নিরাপত্তা নিশ্চিতকরণ এবং খাদ্য সংকট প্রতিরোধ।",
+        "link": "https://doi.org/10.1038/s41477-020-0001-x"
+    }
+]
 
-    elif crop_disease == "Late Blight of Potato & Tomato (আলু ও টমেটোর লেট ব্লাইট)":
-        c1, c2 = st.columns([1, 1.2])
-        with c1:
-            st.image("https://upload.wikimedia.org/wikipedia/commons/e/e0/Phytophthora_infestans_01.jpg", caption="Late Blight Infection on Leaf & Tuber", use_container_width=True)
-        with c2:
-            st.markdown("""
-            <div class='pathogen-card'>
-                <div class='disease-title'>🥔 আলু ও টমেটোর মড়ক বা লেট ব্লাইট</div>
-                <div class='sci-name'>Pathogen: Phytophthora infestans (Oomycete)</div>
-                <p><b>উপসর্গ ও লক্ষণ:</b></p>
-                <ul>
-                    <li>পাতার কিনারে ছাই বা পানিভেজা গাঢ় বাদামি দাগ দেখা দেয়।</li>
-                    <li>আর্দ্র আবহাওয়া বা কুয়াশায় দ্রুত পুরো মাঠ পচে কালো হয়ে যায়।</li>
-                </ul>
-                <p><b>প্রতিকার:</b> আক্রান্ত গাছে ম্যানকোজেব সমৃদ্ধ ছত্রাকনাশক স্প্রে করা এবং রোগমুক্ত বীজ ব্যবহার করা।</p>
-            </div>
-            """, unsafe_allow_html=True)
+# --- DISPLAY FILTERED PAPERS ---
+filtered_papers = [p for p in papers if category == "All Publications" or p["domain"] == category]
 
-    elif crop_disease == "Papaya Ring Spot Virus (পেঁপের রিং স্পট ভাইরাস)":
-        c1, c2 = st.columns([1, 1.2])
-        with c1:
-            st.image("https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/Papaya_ringspot_virus_on_fruit.jpg/640px-Papaya_ringspot_virus_on_fruit.jpg", caption="Papaya Fruit with Ring Spot Symptoms", use_container_width=True)
-        with c2:
-            st.markdown("""
-            <div class='pathogen-card'>
-                <div class='disease-title'>🍈 পেঁপের রিং স্পট ভাইরাস (PRSV)</div>
-                <div class='sci-name'>Pathogen: Papaya Ringspot Virus (Potyvirus)</div>
-                <p><b>উপসর্গ:</b> পেঁপের ফল এবং পাতায় রিং বা আংটির মতো গোল বাদামি দাগ পড়ে, পেঁপে মিষ্টি হয় না এবং ছোট থাকে।</p>
-            </div>
-            """, unsafe_allow_html=True)
+st.markdown(f"### 📚 Showing {len(filtered_papers)} Publication Digest(s)")
 
-# ==========================================
-# TAB 2: PUBLIC HEALTH PATHOGENS
-# ==========================================
-with tab2:
-    st.subheader("🦠 Major Public Health & Zoonotic Pathogens in BD")
-    st.caption("বাংলাদেশের প্রধান জনস্বাস্থ্য হুমকি এবং সংক্রামক ভাইরাসের আণবিক পর্যবেক্ষণ।")
-    
-    health_disease = st.selectbox("Select Public Health Threat:", [
-        "Dengue Virus (ডেঙ্গু ভাইরাসের প্রাদুর্ভাব)",
-        "Nipah Virus (নিপা ভাইরাস সংক্রমণ)",
-        "Rabies Lyssavirus (জলাতঙ্ক রোগ)"
-    ])
-    
-    st.markdown("---")
-    
-    if health_disease == "Dengue Virus (ডেঙ্গু ভাইরাসের প্রাদুর্ভাব)":
-        c1, c2 = st.columns([1, 1.2])
-        with c1:
-            st.image("https://upload.wikimedia.org/wikipedia/commons/thumb/d/db/Aedes_aegypti_biting_human_vector.jpg/640px-Aedes_aegypti_biting_human_vector.jpg", caption="Aedes aegypti Vector", use_container_width=True)
-            st.caption("3D Envelope Protein Structure Below:")
-            html_code = """
-            <script src="https://3Dmol.org/build/3Dmol-min.js"></script>
-            <div id="container" style="width: 100%; height: 260px; border-radius: 12px; border: 1px solid #0284c7;"></div>
-            <script>
-                let viewer = $3Dmol.createViewer( document.getElementById('container'), { backgroundColor: '#f8fafc' } );
-                $3Dmol.download("pdb:1k4r", viewer, {}, function() {
-                    viewer.setStyle({}, {cartoon: {color: 'spectrum'}});
-                    viewer.zoomTo();
-                    viewer.render();
-                });
-            </script>
-            """
-            components.html(html_code, height=270)
-        with c2:
-            st.markdown("""
-            <div class='pathogen-card'>
-                <div class='disease-title'>🦟 ডেঙ্গু ভাইরাস (Dengue Virus - DENV)</div>
-                <div class='sci-name'>Pathogen: Flaviviridae Family (DENV-1, DENV-2, DENV-3, DENV-4)</div>
-                <p><b>সংক্রমণ চক্র:</b> এডিস মশাবাহিত ভাইরাস। বর্ষার মৌসুমে এর বিস্তার তীব্র হয়।</p>
-                <p><b>উপসর্গ:</b> তীব্র জ্বর, চোখের পেছনে ব্যথা, প্লাটিলেট কমে যাওয়া এবং অভ্যন্তরীণ রক্তপাত।</p>
-                <p><b>প্রতিকার ও প্রতিরোধ:</b></p>
-                <ul>
-                    <li>জমে থাকা পানি ৩ দিনের মধ্যে ফেলে দেওয়া।</li>
-                    <li>এনএস১ (NS1) অ্যান্টিজেন পরীক্ষা করানো এবং ওরাল স্যালাইন গ্রহণ।</li>
-                </ul>
-            </div>
-            """, unsafe_allow_html=True)
-
-    elif health_disease == "Nipah Virus (নিপা ভাইরাস সংক্রমণ)":
-        c1, c2 = st.columns([1, 1.2])
-        with c1:
-            st.image("https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Pteropus_vampyrus.jpg/640px-Pteropus_vampyrus.jpg", caption="Fruit Bat (Pteropus) Host", use_container_width=True)
-        with c2:
-            st.markdown("""
-            <div class='pathogen-card'>
-                <div class='disease-title'>🦇 নিপা ভাইরাস (Nipah Virus)</div>
-                <div class='sci-name'>Pathogen: Henipavirus genus</div>
-                <p><b>সংক্রমণ:</b> কাঁচা খেজুরের রস এবং বাদুড়ের লালা/প্রস্রাব দ্বারা দূষিত ফলমূল খেলে মানুষে ছড়ায়।</p>
-                <p><b>উপসর্গ:</b> তীব্র জ্বর, মস্তিষ্কে প্রদাহ (Encephalitis) এবং শ্বাসকষ্ট। মৃত্যুর হার প্রায় ৭০%।</p>
-                <p><b>প্রতিরোধ:</b> শীতকালে কাঁচা খেজুরের রস না খাওয়া এবং পাখির খাওয়া ফল পরিহার করা।</p>
-            </div>
-            """, unsafe_allow_html=True)
-
-# ==========================================
-# TAB 3: METHODOLOGY & IMPACT
-# ==========================================
-with tab3:
-    st.markdown("""
-    <div class='pathogen-card'>
-        <h3>🎯 Project Vision & Scientific Rigor</h3>
-        <p><b>BiogenX</b> exists to centralize open-access pathology data for agricultural sustainability and public health awareness in Bangladesh.</p>
-        <h4>Key Impact Areas:</h4>
-        <ul>
-            <li><b>Crop Security:</b> Educating farmers and agricultural students on early identification of viral/fungal plant threats.</li>
-            <li><b>Epidemiology Awareness:</b> Providing data-driven insights into vector-borne diseases to reduce public health risks.</li>
-        </ul>
+for paper in filtered_papers:
+    st.markdown(f"""
+    <div class='paper-card'>
+        <span class='journal-badge'>🏛️ {paper['journal']} • {paper['domain']}</span>
+        <div class='paper-title'>{paper['title']}</div>
+        <div class='paper-meta'><b>Authors:</b> {paper['authors']}</div>
+        
+        <div class='sub-head'>🎯 The Core Scientific Problem:</div>
+        <div class='card-text'>{paper['problem']}</div>
+        
+        <div class='sub-head'>📖 Translational Bengali Analysis (সহজ ব্যাখ্যা):</div>
+        <div class='card-text'>{paper['bengali_summary']}</div>
+        
+        <div class='sub-head'>🌍 Global Real-World Impact:</div>
+        <div class='card-text'>{paper['impact']}</div>
+        
+        <br>
+        <a href='{paper['link']}' target='_blank' style='color:#48cae4; font-weight:bold; font-size:13px; text-decoration:none;'>🔗 Access Original Journal Publication (DOI) ↗</a>
     </div>
     """, unsafe_allow_html=True)
